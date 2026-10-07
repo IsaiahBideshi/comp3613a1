@@ -1,0 +1,35 @@
+{% extends "authenticated-base.html" %}
+{% from "_macros.html" import course_label %}
+
+{% block subpage_content %}
+<header class="text-center fs-5 mb-3">
+    <div>
+        <span class="me-5">{{ user.first_name }} {{ user.last_name }}</span>
+        GPA: {{ "%.2f"|format(progress.student.gpa) }}
+    </div>
+    <div>{{ progress.degree.name }}</div>
+</header>
+
+<div class="row g-4 justify-content-center">
+    {% for title, tone, groups in [
+        ("Passed Courses", "green", progress.passed),
+        ("Remaining Courses", "blue", progress.remaining),
+    ] %}
+    <div class="col-lg-5">
+        <section class="course-panel course-panel-{{ tone }}">
+            <h2>{{ title }}</h2>
+            {% for (year, semester), courses in groups.items() %}
+            <details>
+                <summary>Year {{ year }} Sem {{ semester }}</summary>
+                <ul>
+                    {% for degree_course in courses %}
+                    <li>{{ course_label(degree_course) }}</li>
+                    {% endfor %}
+                </ul>
+            </details>
+            {% endfor %}
+        </section>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

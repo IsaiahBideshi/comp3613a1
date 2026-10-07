@@ -1,0 +1,15 @@
+{# One course row, e.g. "COMP 1600 – Introduction to Computing Concepts (CORE)". #}
+{% macro course_label(degree_course) -%}
+{{ degree_course.course_code }} – {{ degree_course.course.name }}{{ " (CORE)" if degree_course.is_core }}
+{%- endmacro %}
+
+{# Read-only "Advisor's Comment" popup. Open it with document.getElementById(id).showModal(). #}
+{% macro comment_dialog(id, comment) %}
+<dialog id="{{ id }}" class="comment-dialog">
+    <h2>Advisor's Comment</h2>
+    <p class="comment-text">{{ comment }}</p>
+    <form method="dialog" class="text-center">
+        <button class="btn btn-red">Close</button>
+    </form>
+</dialog>
+{% endmacro %}

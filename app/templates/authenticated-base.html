@@ -4,7 +4,6 @@
 <style>
     body {
         overflow-x: hidden;
-        background: #f4f6f8;
     }
 
     #wrapper {
@@ -16,45 +15,43 @@
         min-width: 250px;
         max-width: 250px;
         min-height: 100vh;
-        transition: all 0.3s;
         background: var(--brand-sidebar);
         color: #fff;
     }
 
-    #sidebar.collapsed {
-        margin-left: -250px;
-    }
-
     #sidebar .nav-link {
         color: var(--brand-sidebar-text);
-        font-weight: 500;
+        font-weight: 600;
+        border: 2px solid currentColor;
+        border-radius: 0.6rem;
     }
 
-    #sidebar .nav-link:hover,
+    #sidebar .nav-link:hover {
+        color: #fff;
+        background-color: color-mix(in srgb, var(--brand-accent) 50%, transparent);
+    }
+
     #sidebar .nav-link.active {
         color: #fff;
-        background-color: color-mix(in srgb, var(--brand-accent) 55%, #000);
-        border-radius: 0.5rem;
+        background-color: var(--brand-accent);
+    }
+
+    #sidebar .nav-link.text-danger:hover {
+        background-color: rgba(var(--bs-danger-rgb), 0.2);
     }
 
     #sidebar .brand-wordmark {
         color: #fff;
-        font-size: 1.25rem;
+        font-size: 1.5rem;
         text-align: center;
         margin: 1rem 0 1.5rem;
     }
 
     #content {
         width: 100%;
-        padding: 1rem;
-        transition: all 0.3s;
+        padding: 1.5rem;
         display: flex;
         flex-direction: column;
-        background-color: #f4f6f8;
-    }
-
-    .navbar {
-        border-bottom: 1px solid #dee2e6;
     }
 </style>
 {% block additional_styles %}{% endblock %}
@@ -63,16 +60,24 @@
 {% block content %}
 <div id="wrapper">
     <nav id="sidebar" class="p-3 d-flex flex-column vh-100">
-        <div class="brand-wordmark">FastStarter</div>
+        <div class="brand-wordmark">MyAdvisor</div>
 
         <ul class="nav nav-pills flex-column gap-2 flex-grow-1">
+            {% if user.role == "advisor" %}
             <li class="nav-item">
-                <a class="nav-link d-flex align-items-center {{ 'active' if request.url.path.startswith('/app') }}"
-                   href="{{ url_for('user_home_view') }}">
-                    <span class="material-symbols-outlined me-2">home</span>
-                    Home
-                </a>
+                <a class="nav-link {{ 'active' if request.url.path == '/submissions' }}"
+                   href="{{ url_for('submissions_view') }}">Student Plans</a>
             </li>
+            {% else %}
+            <li class="nav-item">
+                <a class="nav-link {{ 'active' if request.url.path.startswith('/progress') }}"
+                   href="{{ url_for('progress_view') }}">Degree Progress</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{ 'active' if request.url.path.startswith('/plan') }}"
+                   href="{{ url_for('plan_view') }}">Plan</a>
+            </li>
+            {% endif %}
             <li class="nav-item mt-auto">
                 <a class="nav-link d-flex align-items-center text-danger" href="{{ url_for('logout') }}">
                     <span class="material-symbols-outlined me-2">logout</span>
@@ -83,31 +88,12 @@
     </nav>
 
     <div id="content">
-        <nav class="navbar navbar-expand-lg bg-white mb-4 px-3 rounded-3 shadow-sm">
-            <button class="btn btn-outline-secondary" id="menu-toggle" type="button">
-                <span class="material-symbols-outlined md-dark">menu</span>
-            </button>
-            <div class="ms-auto d-flex align-items-center gap-3">
-                <span class="fw-semibold">Welcome, {{ user.username }}</span>
-            </div>
-        </nav>
-
-        <div class="row">
-            <div class="col-12">
-                {% for message in get_flashed_messages(request) %}
-                <div class="alert alert-{{ message.type }}" role="alert">{{ message.message }}</div>
-                {% endfor %}
-            </div>
-        </div>
+        {% for message in get_flashed_messages(request) %}
+        <div class="alert alert-{{ message.type }}" role="alert">{{ message.message }}</div>
+        {% endfor %}
 
         {% block subpage_content %}{% endblock %}
     </div>
 </div>
-
-<script>
-    document.getElementById("menu-toggle").addEventListener("click", function () {
-        document.getElementById("sidebar").classList.toggle("collapsed");
-    });
-</script>
 {% block subpage_scripts %}{% endblock %}
 {% endblock %}

@@ -7,6 +7,8 @@ class UserBase(SQLModel,):
     username: str = Field(index=True, unique=True)
     email: EmailStr = Field(index=True, unique=True)
     password: str
+    first_name: str = ""
+    last_name: str = ""
     role:str = ""
 
 class User(UserBase, table=True):

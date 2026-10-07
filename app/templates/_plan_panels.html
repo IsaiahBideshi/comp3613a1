@@ -1,0 +1,56 @@
+{# The plan body, re-rendered after every save. A button's data-method + data-url is the save it triggers. #}
+{% from "_macros.html" import course_label %}
+<div class="row g-4 justify-content-center">
+    <div class="col-lg-5">
+        <section class="course-panel course-panel-green">
+            <h2>Planned Courses</h2>
+            {% if planned %}
+            <ul class="course-box">
+                {% for course in planned %}
+                <li>
+                    <button type="button" data-method="DELETE" {{ "disabled" if not editable }}
+                            data-url="{{ url_for('plan_remove_course', course_code=course.course_code) }}">
+                        {{ course_label(course) }} {{ "−" if editable }}
+                    </button>
+                </li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+        </section>
+    </div>
+    <div class="col-lg-5">
+        <section class="course-panel course-panel-blue">
+            <h2>Remaining Courses</h2>
+            {% for year, courses in available|groupby("year") %}
+            <details open>
+                <summary>Year {{ year }} Sem {{ courses[0].semester }}</summary>
+                <ul>
+                    {% for course in courses %}
+                    {% set is_planned = course.course_code in planned_codes %}
+                    <li>
+                        <button type="button" class="{{ 'course-glow' if is_planned }}"
+                                data-method="{{ 'DELETE' if is_planned else 'PUT' }}" {{ "disabled" if not editable }}
+                                data-url="{{ url_for('plan_remove_course' if is_planned else 'plan_add_course', course_code=course.course_code) }}">
+                            {{ course_label(course) }} {{ ("−" if is_planned else "+") if editable }}
+                        </button>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </details>
+            {% endfor %}
+        </section>
+    </div>
+</div>
+<div class="d-flex justify-content-center gap-5 mt-4">
+    {% if submitted %}
+    <form method="post" action="{{ url_for('plan_withdraw') }}">
+        <button type="submit" class="btn btn-red">Remove Submission</button>
+    </form>
+    {% else %}
+    <form method="post" action="{{ url_for('plan_submit') }}">
+        <button type="submit" class="btn btn-green" {{ "disabled" if not (editable and planned) }}>Submit</button>
+    </form>
+    <button type="button" class="btn btn-blue" data-method="DELETE" {{ "disabled" if not editable }}
+            data-url="{{ url_for('plan_reset') }}">Reset</button>
+    {% endif %}
+</div>

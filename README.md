@@ -90,10 +90,7 @@ Creates tables (drops existing by default) **and seeds demo users**:
 python manage.py init
 ```
 
-| Username | Password    | Role         |
-|----------|-------------|--------------|
-| `bob`    | `bobpass`   | regular_user |
-| `admin`  | `adminpass` | admin        |
+Demo logins are listed under **Logins** in `docs/report.md`.
 
 Flags:
 

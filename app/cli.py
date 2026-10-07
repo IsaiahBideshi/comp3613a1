@@ -46,48 +46,20 @@ def cmd_init(args: argparse.Namespace) -> None:
         cmd_seed(args)
 
 
-def cmd_seed(args: argparse.Namespace) -> None:
-    """Insert demo users.
-
-    bob / bobpass       (regular_user)
-    admin / adminpass   (admin)
-    """
+def cmd_seed(args: argparse.Namespace | None = None) -> tuple[int, int]:
+    """Insert the demo data in app/seed.py. Returns users (created, skipped)."""
     from app.database import ensure_db_and_tables, get_cli_session
-    from app.repositories.user import UserRepository
-    from app.schemas.user import AdminCreate, RegularUserCreate
-    from app.utilities.security import encrypt_password
+    from app.seed import seed
 
     _ensure_models_loaded()
     ensure_db_and_tables()
 
-    demo_users = [
-        ("bob", "bob@example.com", "bobpass", "regular_user"),
-        ("admin", "admin@example.com", "adminpass", "admin"),
-    ]
-
-    created = 0
-    skipped = 0
     with get_cli_session() as session:
-        repo = UserRepository(session)
-        for username, email, password, role in demo_users:
-            if repo.get_by_username(username):
-                print(f"  skip  {username} (already exists)")
-                skipped += 1
-                continue
-            payload_cls = AdminCreate if role == "admin" else RegularUserCreate
-            repo.create(
-                payload_cls(
-                    username=username,
-                    email=email,
-                    password=encrypt_password(password),
-                    role=role,
-                )
-            )
-            print(f"  create {username} ({role})")
-            created += 1
+        created, skipped = seed(session)
 
-    print(f"Seed done — created {created}, skipped {skipped}.")
-    print("Login with bob/bobpass or admin/adminpass")
+    print(f"Seed done — users created {created}, skipped {skipped}.")
+    print("Logins are listed in docs/report.md")
+    return created, skipped
 
 
 def cmd_run(args: argparse.Namespace) -> None:

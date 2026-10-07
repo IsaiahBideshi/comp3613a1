@@ -1,0 +1,29 @@
+{
+  "system": "MyAdvisor",
+  "actors": [
+    {"name": "Student", "side": "left"},
+    {"name": "Advisor", "side": "right"}
+  ],
+  "use_cases": [
+    {"name": "Track degree progress", "actors": ["Student"]},
+    {
+      "name": "Plan courses for semester",
+      "actors": ["Student"],
+      "includes": ["Track degree progress"]
+    },
+    {
+      "name": "Submit plan",
+      "extends": ["Plan courses for semester"]
+    },
+    {"name": "Check plan status", "actors": ["Student"]},
+    {
+      "name": "Remove submission",
+      "extends": ["Check plan status"]
+    },
+    {
+      "name": "Approve/Deny plan",
+      "actors": ["Advisor"],
+      "includes": ["Track degree progress"]
+    }
+  ]
+}

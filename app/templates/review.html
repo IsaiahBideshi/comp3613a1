@@ -1,0 +1,71 @@
+{% extends "authenticated-base.html" %}
+{% from "_macros.html" import comment_dialog, course_label %}
+
+{% block subpage_content %}
+<header class="row mb-3 fs-5">
+    <div class="col">
+        <a class="btn btn-sm btn-blue" href="{{ url_for('submissions_view') }}">← Back to list</a>
+    </div>
+    <div class="col-auto text-center">
+        <div>{{ plan.student.user.first_name }} {{ plan.student.user.last_name }}'s Plan for {{ plan.year_semester }}</div>
+        <div>{{ plan.student.degree.name }}</div>
+    </div>
+    <div class="col text-end">GPA: {{ "%.2f"|format(plan.student.gpa) }}</div>
+</header>
+
+<div class="row g-4 justify-content-center">
+    <div class="col-lg-5">
+        <section class="course-panel course-panel-green d-flex flex-column">
+            <h2>Student's Planned Courses</h2>
+            <ul class="course-box">
+                {% for course in planned %}
+                <li>{{ course_label(course) }}</li>
+                {% endfor %}
+            </ul>
+            <div class="mt-auto text-body fs-5">{{ planned|length }} Course{{ "s" if planned|length != 1 }}</div>
+        </section>
+    </div>
+    <div class="col-lg-5">
+        <section class="course-panel course-panel-blue">
+            <h2>Student's Remaining Courses</h2>
+            {% set planned_codes = planned|map(attribute="course_code")|list %}
+            {% for year, courses in required|groupby("year") %}
+            <div class="course-group">
+                <h3>Required Courses: Year {{ year }} Sem {{ courses[0].semester }}</h3>
+                <ul>
+                    {% for course in courses %}
+                    <li class="{{ 'course-glow' if course.course_code in planned_codes }}">{{ course_label(course) }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endfor %}
+        </section>
+    </div>
+</div>
+
+{% if plan.comment %}
+<div class="text-center mt-3">
+    <p class="mb-2">This Plan has been denied before</p>
+    <button type="button" class="btn btn-blue" onclick="document.getElementById('previous-comment').showModal()">See previous comment</button>
+</div>
+{{ comment_dialog("previous-comment", plan.comment) }}
+{% endif %}
+
+<div class="d-flex justify-content-center gap-5 mt-4">
+    <form method="post" action="{{ url_for('submission_approve', plan_id=plan.id) }}">
+        <button class="btn btn-green" type="submit">Approve</button>
+    </form>
+    <button type="button" class="btn btn-red" onclick="document.getElementById('deny-dialog').showModal()">Deny</button>
+</div>
+
+<dialog id="deny-dialog" class="comment-dialog">
+    <form method="post" action="{{ url_for('submission_deny', plan_id=plan.id) }}">
+        <h2><label for="comment">Advisor's Comment</label></h2>
+        <textarea class="form-control" id="comment" name="comment" rows="8" placeholder="Enter Comment here . . ." required></textarea>
+        <div class="d-flex justify-content-center gap-5 mt-3">
+            <button class="btn btn-red" type="submit">Deny</button>
+            <button class="btn btn-blue" type="button" onclick="this.closest('dialog').close()">Cancel</button>
+        </div>
+    </form>
+</dialog>
+{% endblock %}

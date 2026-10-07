@@ -5,10 +5,12 @@ import uvicorn
 from fastapi import FastAPI, Request, status
 from starlette.middleware import Middleware
 from starlette.middleware.sessions import SessionMiddleware
-from starlette.responses import RedirectResponse
+from starlette.responses import JSONResponse, RedirectResponse
 
 from app.config import get_settings
 from app.routers import api_router, router, static_files, templates
+from app.services.plan_service import PlanError
+from app.utilities.flash import flash
 
 logger = logging.getLogger(__name__)
 
@@ -57,6 +59,15 @@ async def recover_uninitialized_db(request: Request, call_next):
 @app.get("/health")
 async def health():
     return {"ok": True}
+
+
+@app.exception_handler(PlanError)
+async def plan_error_handler(request: Request, exc: PlanError):
+    # A page or form request shows the message on the user's own start page; an autosave fetch gets a 400.
+    if "text/html" in request.headers.get("accept", ""):
+        flash(request, str(exc), "danger")
+        return RedirectResponse(url=request.url_for("login_view"), status_code=status.HTTP_303_SEE_OTHER)
+    return JSONResponse({"detail": str(exc)}, status_code=status.HTTP_400_BAD_REQUEST)
 
 
 @app.exception_handler(status.HTTP_401_UNAUTHORIZED)

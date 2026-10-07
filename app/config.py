@@ -3,7 +3,7 @@ import os
 import re
 from pathlib import Path
 
-from pydantic import field_validator
+from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 # Prefer a real .env; fall back to committed examples for first-run clones.
@@ -99,6 +99,9 @@ class Settings(BaseSettings):
     secret_key: str
     env: str
     config_password: str = ""
+    # The term plans are being made for, not the one being taught. An admin changes it
+    # when a registration period ends.
+    current_term: str = Field("2026-S1", pattern=r"^\d{4}-S[12]$")
     jwt_algorithm: str = "HS256"
     jwt_access_token_expires: int = 30
     app_host: str = "0.0.0.0"

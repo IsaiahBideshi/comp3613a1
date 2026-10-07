@@ -41,15 +41,15 @@ async def is_logged_in(request: Request, db:SessionDep):
 IsUserLoggedIn = Annotated[bool, Depends(is_logged_in)]
 AuthDep = Annotated[User, Depends(get_current_user)]
 
-async def is_admin(user: User):
-    return user.role == "admin"
-
-async def is_admin_dep(user: AuthDep):
-    if not await is_admin(user):
-        raise HTTPException(
+def require_role(role: str):
+    async def role_dep(user: AuthDep):
+        if user.role != role:
+            raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="You are not authorized to access this page",
             )
-    return user
+        return user
+    return role_dep
 
-AdminDep = Annotated[User, Depends(is_admin_dep)]
+StudentDep = Annotated[User, Depends(require_role("student"))]
+AdvisorDep = Annotated[User, Depends(require_role("advisor"))]

@@ -1,0 +1,53 @@
+{% extends "authenticated-base.html" %}
+{% from "_macros.html" import comment_dialog %}
+
+{% block subpage_content %}
+<header class="row mb-3">
+    <div class="col fs-5">
+        Status: <span class="status-{{ status }}">{{ status|capitalize }}</span>
+        {% if denied %}
+        <button type="button" class="btn btn-link btn-sm p-0 text-body fst-italic"
+                onclick="document.getElementById('advisor-comment').showModal()">see why!</button>
+        {{ comment_dialog("advisor-comment", plan.comment) }}
+        {% endif %}
+    </div>
+    <div class="col-auto text-center fs-5">
+        <div>{{ user.first_name }} {{ user.last_name }}'s Plan for {{ plan.year_semester }}</div>
+        <div>{{ degree.name }}</div>
+    </div>
+    <div class="col text-end" id="autosave" role="status">Autosave: saved!</div>
+</header>
+
+<div id="plan">
+    {% include "_plan_panels.html" %}
+</div>
+{% endblock %}
+
+{% block subpage_scripts %}
+<script>
+    const plan = document.getElementById("plan");
+    const autosave = document.getElementById("autosave");
+
+    // The plan only ever changes to what the server sends back, so a failed
+    // save leaves the screen on the last valid save.
+    async function save(method, url) {
+        autosave.textContent = "Autosave: saving...";
+        plan.inert = true;
+        try {
+            const response = await fetch(url, { method });
+            if (!response.ok) throw new Error(response.status);
+            plan.innerHTML = await response.text();
+            autosave.textContent = "Autosave: saved!";
+        } catch {
+            autosave.textContent = "Autosave: failed!";
+        } finally {
+            plan.inert = false;
+        }
+    }
+
+    plan.addEventListener("click", (event) => {
+        const button = event.target.closest("[data-method]");
+        if (button) save(button.dataset.method, button.dataset.url);
+    });
+</script>
+{% endblock %}

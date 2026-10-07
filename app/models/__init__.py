@@ -4,5 +4,23 @@ Import every table model here so ``SQLModel.metadata.create_all`` sees them.
 """
 
 from app.models.user import User
+from app.models.academic import (
+    Course,
+    Degree,
+    DegreeCourse,
+    Plan,
+    PlanCourse,
+    Student,
+    StudentPassedCourse,
+)
 
-__all__ = ["User"]
+__all__ = [
+    "User",
+    "Course",
+    "Degree",
+    "DegreeCourse",
+    "Plan",
+    "PlanCourse",
+    "Student",
+    "StudentPassedCourse",
+]

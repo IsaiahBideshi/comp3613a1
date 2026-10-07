@@ -1,0 +1,44 @@
+{% extends "authenticated-base.html" %}
+
+{% block subpage_content %}
+<h1 class="text-center fs-2 mb-4">Pending Submissions</h1>
+
+<form class="mb-3" method="get" action="{{ url_for('submissions_view') }}" role="search">
+    <label class="form-label" for="q">Search by Name:</label>
+    <div class="d-flex gap-2">
+        <input class="form-control border-dark" type="search" id="q" name="q" value="{{ q }}" placeholder="Enter name . . .">
+        <button class="btn" type="submit" aria-label="Search">
+            <span class="material-symbols-outlined">search</span>
+        </button>
+    </div>
+</form>
+
+<table class="table table-bordered border-dark table-striped align-middle text-center submissions-table">
+    <thead class="fs-4">
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Degree</th>
+            <th>GPA</th>
+            <th>Date</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for plan in plans %}
+        <tr>
+            <td>{{ plan.student.user.username }}</td>
+            <td>{{ plan.student.user.first_name }} {{ plan.student.user.last_name }}</td>
+            <td>{{ plan.student.degree.name }}</td>
+            <td>{{ "%.2f"|format(plan.student.gpa) }}</td>
+            <td>{{ plan.date_submitted.strftime("%d-%m-%y") }}</td>
+            <td><a class="btn btn-sm btn-blue" href="{{ url_for('submission_review', plan_id=plan.id) }}">Review</a></td>
+        </tr>
+        {% else %}
+        <tr>
+            <td colspan="6">{{ "No pending submissions match that name." if q else "No pending submissions." }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
