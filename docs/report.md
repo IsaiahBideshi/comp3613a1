@@ -534,9 +534,22 @@ Polish (student), from that run:
 
 ## Deployed app
 
-Phase 6. Public Render URL (not localhost). Markers open this to mark the three workflows.
+Phase 6. Public Render URL (not localhost). Markers open this to mark the workflows.
 
-https://
+https://myadvisor-dn2r.onrender.com
+
+- Hosted on Render's free plan: a Python web service (`myadvisor`) and a Postgres 16 database (`myadvisor-db`), both in Oregon, created with the Render MCP to match `render.yaml`.
+- The free web service sleeps when idle, so the first page load after a quiet spell can take about a minute.
+- The free database expires on 6 November 2026.
+- The demo data is seeded on start, and only what is missing is added, so a restart does not wipe plans.
+- The database address and the app's secret key were entered in the Render dashboard by the student, so neither appears in this report or in the session transcripts.
+
+Checked on the live site after deploying: `/health` answers 200; `/` goes to the login page, which shows the MyAdvisor title and asks for a University ID; `/plan`, `/progress` and `/submissions` show the unauthorized page when signed out; `/register` and `/api/users` are gone (404); and the startup log shows the seed creating the six accounts.
+
+Two fixes made for deployment:
+
+- The login cookie is `SameSite=Lax` (the starter used `None` in production), so another website cannot submit this app's forms with a signed-in user's session.
+- `python manage.py init` printed the full database address, password included, into the server log on every start. It now prints it with the password masked.
 
 ## Logins
 
