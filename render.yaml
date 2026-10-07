@@ -6,7 +6,7 @@
 
 services:
   - type: web
-    name: faststarter
+    name: myadvisor
     runtime: python
     plan: free
     region: oregon
@@ -20,16 +20,19 @@ services:
         value: production
       - key: DATABASE_URI
         fromDatabase:
-          name: faststarter-db
+          name: myadvisor-db
           property: connectionString
       - key: SECRET_KEY
         generateValue: true
       - key: CONFIG_PASSWORD
         generateValue: true
+      # Term that plans are being made for (YYYY-S1 or YYYY-S2). Change it when registration ends.
+      - key: CURRENT_TERM
+        value: "2026-S1"
 
 databases:
-  - name: faststarter-db
-    databaseName: faststarter
+  - name: myadvisor-db
+    databaseName: myadvisor
     plan: free
     region: oregon
     postgresMajorVersion: "16"

@@ -30,10 +30,14 @@ def create_access_token(
 
 
 def access_token_cookie_kwargs() -> dict:
-    """Cookie flags that work on local http; tighten in production."""
+    """Cookie flags that work on local http. Production adds Secure (HTTPS only).
+
+    SameSite stays "lax" everywhere: the app is only used from its own pages, and "none"
+    would let another site post the plan and approve/deny forms with the user's session.
+    """
     is_prod = get_settings().env.lower() in {"prod", "production"}
     return {
         "httponly": True,
-        "samesite": "none" if is_prod else "lax",
+        "samesite": "lax",
         "secure": is_prod,
     }
